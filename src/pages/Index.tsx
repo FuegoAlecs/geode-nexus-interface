@@ -1,12 +1,49 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useEffect, useState } from 'react';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import ApplicationsSection from '@/components/ApplicationsSection';
+import DaoSection from '@/components/DaoSection';
+import ActivitiesSection from '@/components/ActivitiesSection';
+import PrivacySection from '@/components/PrivacySection';
+import Footer from '@/components/Footer';
+import PreLoader from '@/components/PreLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Index = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <AnimatePresence>
+        {loading && <PreLoader />}
+      </AnimatePresence>
+
+      {!loading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Header />
+          <main>
+            <HeroSection />
+            <ApplicationsSection />
+            <DaoSection />
+            <ActivitiesSection />
+            <PrivacySection />
+          </main>
+          <Footer />
+        </motion.div>
+      )}
     </div>
   );
 };
