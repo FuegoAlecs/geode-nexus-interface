@@ -1,6 +1,6 @@
 
-import React, { useRef } from 'react';
-import * as THREE from 'three';
+import React from 'react';
+import { useFrame } from '@react-three/fiber';
 
 // Define proper types for component props
 interface PulseSphereProps {
@@ -12,21 +12,23 @@ interface PulseSphereProps {
 
 // PulseSphere component that runs inside Canvas
 const PulseSphere: React.FC<PulseSphereProps> = ({ position, scale, rotationSpeed, color }) => {
-  const sphereRef = useRef<THREE.Mesh>(null);
+  const sphereRef = React.useRef<THREE.Mesh>(null);
   
-  const animate = (self: THREE.Mesh) => {
+  useFrame(() => {
+    if (!sphereRef.current) return;
+    
     // Update rotation
-    self.rotation.y += rotationSpeed;
-    self.rotation.z += rotationSpeed * 0.5;
+    sphereRef.current.rotation.y += rotationSpeed;
+    sphereRef.current.rotation.z += rotationSpeed * 0.5;
     
     // Pulse effect with sine wave
     const time = Date.now() * 0.001; // Convert to seconds
     const pulse = Math.sin(time * 2) * 0.05 + 1;
-    self.scale.set(scale * pulse, scale * pulse, scale * pulse);
-  };
+    sphereRef.current.scale.set(scale * pulse, scale * pulse, scale * pulse);
+  });
   
   return (
-    <mesh ref={sphereRef} position={position} onUpdate={animate}>
+    <mesh ref={sphereRef} position={position}>
       <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial 
         color={color} 

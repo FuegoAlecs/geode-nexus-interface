@@ -1,19 +1,21 @@
 
-import React, { useRef } from 'react';
-import * as THREE from 'three';
+import React from 'react';
+import { useFrame } from '@react-three/fiber';
 
 // FloatingRings component that runs inside Canvas
 const FloatingRings: React.FC = () => {
-  const ringRef = useRef<THREE.Group>(null);
+  const groupRef = React.useRef<THREE.Group>(null);
   
-  const animate = (self: THREE.Group) => {
+  useFrame(() => {
+    if (!groupRef.current) return;
+    
     const time = Date.now() * 0.001; // Convert to seconds
-    self.rotation.x = Math.sin(time * 0.3) * 0.1;
-    self.rotation.y = Math.sin(time * 0.2) * 0.2;
-  };
+    groupRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
+    groupRef.current.rotation.y = Math.sin(time * 0.2) * 0.2;
+  });
   
   return (
-    <group ref={ringRef} onUpdate={animate}>
+    <group ref={groupRef}>
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[1.5 + i * 0.5, 0.05, 16, 100]} />

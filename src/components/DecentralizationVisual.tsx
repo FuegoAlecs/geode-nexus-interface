@@ -1,9 +1,8 @@
 
-import React, { useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import * as THREE from 'three';
 
 interface NodeProps {
   position: [number, number, number];
@@ -15,18 +14,18 @@ interface NodeProps {
 
 // Node component that runs inside Canvas
 const Node: React.FC<NodeProps> = ({ position, color, size, pulse = false, isCenter = false }) => {
-  const nodeRef = useRef<THREE.Mesh>(null);
+  const nodeRef = React.useRef<THREE.Mesh>(null);
   
-  const onAnimate = (self: THREE.Mesh) => {
-    if (pulse) {
-      const time = (Date.now() * 0.001); // Convert to seconds
-      const scale = size * (1 + Math.sin(time * 2) * 0.1);
-      self.scale.set(scale, scale, scale);
-    }
-  };
+  useFrame(() => {
+    if (!nodeRef.current || !pulse) return;
+    
+    const time = (Date.now() * 0.001); // Convert to seconds
+    const scale = size * (1 + Math.sin(time * 2) * 0.1);
+    nodeRef.current.scale.set(scale, scale, scale);
+  });
   
   return (
-    <mesh ref={nodeRef} position={position} onUpdate={onAnimate}>
+    <mesh ref={nodeRef} position={position}>
       {isCenter ? (
         <cylinderGeometry args={[size, size, size * 0.3, 32, 1]} />
       ) : (
@@ -72,7 +71,12 @@ interface NodeData {
 
 // NetworkGraph component that runs inside Canvas
 const NetworkGraph: React.FC = () => {
-  const graphRef = useRef<THREE.Group>(null);
+  const graphRef = React.useRef<THREE.Group>(null);
+  
+  useFrame(() => {
+    if (!graphRef.current) return;
+    graphRef.current.rotation.y = Date.now() * 0.0001;
+  });
   
   // Center node and peripheral nodes
   const centerPosition: [number, number, number] = [0, 0, 0];
@@ -87,13 +91,8 @@ const NetworkGraph: React.FC = () => {
     { position: [1.5, -1.5, 0], delay: 0.8 },
   ];
   
-  const onRotate = (self: THREE.Group) => {
-    const time = (Date.now() * 0.001); // Convert to seconds
-    self.rotation.y = time * 0.1;
-  };
-  
   return (
-    <group ref={graphRef} onUpdate={onRotate}>
+    <group ref={graphRef}>
       {/* Center node */}
       <Node 
         position={centerPosition} 
