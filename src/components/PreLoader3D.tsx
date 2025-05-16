@@ -72,7 +72,7 @@ const FloatingRings: React.FC = () => {
   );
 };
 
-// GeodeText component that runs inside Canvas - Fixed to not use hooks directly
+// GeodeText component that runs inside Canvas
 const GeodeText: React.FC = () => {
   const textRef = useRef<THREE.Group>(null);
   
@@ -84,30 +84,26 @@ const GeodeText: React.FC = () => {
   
   return (
     <group ref={textRef} onUpdate={animate}>
-      <Center>
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-          <Text3D
-            font="/fonts/Inter_Bold.json"
-            size={0.7}
-            height={0.2}
-            curveSegments={12}
-            bevelEnabled
-            bevelThickness={0.02}
-            bevelSize={0.02}
-            bevelOffset={0}
-            bevelSegments={5}
-          >
-            GEODE
-            <meshStandardMaterial 
-              color="#F5A623" 
-              roughness={0.1}
-              metalness={0.8}
-              emissive="#F5A623"
-              emissiveIntensity={0.4}
-            />
-          </Text3D>
-        </Float>
-      </Center>
+      <Text3D
+        font="/fonts/Inter_Bold.json"
+        size={0.7}
+        height={0.2}
+        curveSegments={12}
+        bevelEnabled
+        bevelThickness={0.02}
+        bevelSize={0.02}
+        bevelOffset={0}
+        bevelSegments={5}
+      >
+        GEODE
+        <meshStandardMaterial 
+          color="#F5A623" 
+          roughness={0.1}
+          metalness={0.8}
+          emissive="#F5A623"
+          emissiveIntensity={0.4}
+        />
+      </Text3D>
     </group>
   );
 };
@@ -128,7 +124,11 @@ const Scene: React.FC = () => {
       <PulseSphere position={[-2, 0, 0]} scale={0.6} rotationSpeed={0.02} color="#4A2A6F" />
       <PulseSphere position={[0, 1.5, 0]} scale={0.6} rotationSpeed={0.018} color="#4A2A6F" />
       <PulseSphere position={[0, -1.5, 0]} scale={0.6} rotationSpeed={0.012} color="#4A2A6F" />
-      <GeodeText />
+      <Center>
+        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+          <GeodeText />
+        </Float>
+      </Center>
     </group>
   );
 };
