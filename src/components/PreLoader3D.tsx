@@ -9,16 +9,15 @@ import * as THREE from 'three';
 const PulseSphere = ({ position, scale, rotationSpeed, color }) => {
   const sphereRef = useRef(null);
   
-  // useFrame will only run inside the Canvas
-  const animate = (state) => {
-    if (sphereRef.current) {
-      sphereRef.current.rotation.y += rotationSpeed;
-      sphereRef.current.rotation.z += rotationSpeed * 0.5;
-      
-      // Pulse effect with sine wave
-      const pulse = Math.sin(state.clock.getElapsedTime() * 2) * 0.05 + 1;
-      sphereRef.current.scale.set(scale * pulse, scale * pulse, scale * pulse);
-    }
+  const animate = (self) => {
+    // Update rotation
+    self.rotation.y += rotationSpeed;
+    self.rotation.z += rotationSpeed * 0.5;
+    
+    // Pulse effect with sine wave
+    const time = Date.now() * 0.001; // Convert to seconds
+    const pulse = Math.sin(time * 2) * 0.05 + 1;
+    self.scale.set(scale * pulse, scale * pulse, scale * pulse);
   };
   
   return (
@@ -39,12 +38,10 @@ const PulseSphere = ({ position, scale, rotationSpeed, color }) => {
 const FloatingRings = () => {
   const ringRef = useRef(null);
   
-  const animate = (state) => {
-    if (ringRef.current) {
-      const time = state.clock.getElapsedTime();
-      ringRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
-      ringRef.current.rotation.y = Math.sin(time * 0.2) * 0.2;
-    }
+  const animate = (self) => {
+    const time = Date.now() * 0.001; // Convert to seconds
+    self.rotation.x = Math.sin(time * 0.3) * 0.1;
+    self.rotation.y = Math.sin(time * 0.2) * 0.2;
   };
   
   return (
@@ -71,11 +68,10 @@ const FloatingRings = () => {
 const GeodeText = () => {
   const textRef = useRef(null);
   
-  const animate = ({ clock }) => {
-    if (textRef.current) {
-      // Gentle floating animation
-      textRef.current.position.y = Math.sin(clock.getElapsedTime()) * 0.1;
-    }
+  const animate = (self) => {
+    const time = Date.now() * 0.001; // Convert to seconds
+    // Gentle floating animation
+    self.position.y = Math.sin(time) * 0.1;
   };
   
   return (
@@ -112,10 +108,8 @@ const GeodeText = () => {
 const Scene = () => {
   const groupRef = useRef(null);
   
-  const animate = ({ clock }) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = clock.getElapsedTime() * 0.2;
-    }
+  const animate = (self) => {
+    self.rotation.y = Date.now() * 0.0002;
   };
   
   return (
@@ -190,9 +184,7 @@ const PreLoader3D = () => {
           ))}
           <motion.span 
             className="text-geode-orange text-sm ml-2"
-            animate={{ 
-              opacity: [0.7, 1, 0.7] 
-            }}
+            animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{
               duration: 2,
               repeat: Infinity,

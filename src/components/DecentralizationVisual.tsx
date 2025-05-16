@@ -17,18 +17,18 @@ interface NodeProps {
 const Node = ({ position, color, size, pulse = false, isCenter = false }: NodeProps) => {
   const nodeRef = useRef<THREE.Mesh>(null);
   
-  const animate = ({ clock }) => {
-    if (nodeRef.current && pulse) {
-      const time = clock.getElapsedTime();
+  const onAnimate = (self: THREE.Mesh) => {
+    if (pulse) {
+      const time = (Date.now() * 0.001); // Convert to seconds
       const scale = size * (1 + Math.sin(time * 2) * 0.1);
-      nodeRef.current.scale.set(scale, scale, scale);
+      self.scale.set(scale, scale, scale);
     }
   };
   
   return (
-    <mesh ref={nodeRef} position={position} onUpdate={animate}>
+    <mesh ref={nodeRef} position={position} onUpdate={onAnimate}>
       {isCenter ? (
-        <cylinderGeometry args={[size, size, size * 0.3, 6, 1]} />
+        <cylinderGeometry args={[size, size, size * 0.3, 32, 1]} />
       ) : (
         <sphereGeometry args={[size, 16, 16]} />
       )}
@@ -87,14 +87,13 @@ const NetworkGraph = () => {
     { position: [1.5, -1.5, 0], delay: 0.8 },
   ];
   
-  const animate = ({ clock }) => {
-    if (graphRef.current) {
-      graphRef.current.rotation.y = clock.getElapsedTime() * 0.1;
-    }
+  const onRotate = (self: THREE.Group) => {
+    const time = (Date.now() * 0.001); // Convert to seconds
+    self.rotation.y = time * 0.1;
   };
   
   return (
-    <group ref={graphRef} onUpdate={animate}>
+    <group ref={graphRef} onUpdate={onRotate}>
       {/* Center node */}
       <Node 
         position={centerPosition} 

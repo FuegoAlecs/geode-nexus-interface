@@ -1,193 +1,174 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Shield, Lock } from 'lucide-react';
 import DecentralizationVisual from './DecentralizationVisual';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const HeroSection = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1,
-        delayChildren: 0.3
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.7, ease: [0.6, 0.05, 0.01, 0.99] }
-    }
-  };
-
-  const buttonVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)" },
-    tap: { scale: 0.98 }
-  };
-  
-  // Fixed the error by correcting the Framer Motion types
-  const floatingElementVariants = {
-    initial: { 
-      opacity: 0.2,
-      scale: 1,
+  const backgroundElementVariants = {
+    initial: {
+      opacity: 0,
+      scale: 0.8,
       rotate: 0
     },
-    animate: { 
-      opacity: [0.1, 0.2, 0.3],
-      scale: [0.8, 1, 1.1],
-      rotate: 360,
-      transition: { 
-        duration: 20,
+    animate: {
+      opacity: [0, 1, 0.8],
+      scale: [0.8, 1, 0.95],
+      rotate: 45,
+      transition: {
+        duration: 8,
         repeat: Infinity,
-        repeatType: "loop",
+        repeatType: "loop" as const,
         ease: "easeInOut"
       }
     }
   };
-
+  
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Dynamic background elements */}
-      <div className="absolute inset-0 -z-10">
-        {Array.from({ length: 20 }).map((_, i) => (
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden pt-16 pb-32 px-4">
+      {/* Background floating elements */}
+      <div className="absolute inset-0 z-0">
+        {Array.from({ length: 5 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute backdrop-blur-xl bg-white/5 border border-white/10 rounded-full"
-            custom={i}
-            variants={floatingElementVariants}
+            className={`absolute rounded-3xl ${i % 2 === 0 ? 'bg-geode-purple/10' : 'bg-geode-orange/10'}`}
+            style={{
+              width: `${100 + i * 50}px`,
+              height: `${100 + i * 50}px`,
+              top: `${10 + i * 15}%`,
+              left: `${5 + i * 20}%`,
+            }}
+            variants={backgroundElementVariants}
             initial="initial"
             animate="animate"
-            style={{
-              width: `${Math.random() * 100 + 50}px`,
-              height: `${Math.random() * 100 + 50}px`,
-              backdropFilter: "blur(2px)",
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+            transition={{
+              delay: i * 0.5
             }}
           />
         ))}
-      </div>
-
-      <div className="container grid grid-cols-1 lg:grid-cols-2 gap-8 items-center px-4 py-12">
-        {/* Text Content */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10"
-        >
-          <motion.div variants={itemVariants} className="relative z-10">
+          className="absolute w-96 h-96 bg-gradient-to-r from-geode-purple/20 to-transparent rounded-full blur-3xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 2 }}
+          style={{ top: '10%', right: '10%' }}
+        />
+        <motion.div
+          className="absolute w-64 h-64 bg-gradient-to-l from-geode-orange/20 to-transparent rounded-full blur-3xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 2, delay: 0.5 }}
+          style={{ bottom: '15%', left: '15%' }}
+        />
+      </div>
+      
+      <div className="container mx-auto max-w-7xl z-10 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-col gap-6"
+          >
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-geode-purple dark:text-white"
+              className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-white to-gray-400 text-transparent bg-clip-text"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.8 }}
             >
-              <span className="inline-block relative">
-                <span className="text-geode-orange">Decentralized</span>
-                <motion.span 
-                  className="absolute -bottom-2 left-0 w-full h-1 bg-geode-orange rounded-full"
-                  initial={{ scaleX: 0, originX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.8, delay: 1.2 }}
-                />
-              </span>{" "}
-              Foundation for Digital Freedom
+              Trust in a <br/>
+              <span className="text-geode-orange">Trustless</span> World
             </motion.h1>
-          </motion.div>
-          
-          <motion.p 
-            variants={itemVariants}
-            className="text-lg md:text-xl opacity-80 mb-8 max-w-lg"
-          >
-            Embrace a new era of peer-to-peer connectivity, data sovereignty, and zero-fee trading with The Geode Foundation.
-          </motion.p>
-          
-          <motion.div 
-            variants={itemVariants}
-            className="flex flex-wrap gap-4"
-          >
-            <motion.div
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
+            
+            <motion.p 
+              className="text-xl text-gray-300 max-w-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
             >
-              <Button 
-                size="lg" 
-                className="bg-geode-purple text-geode-orange hover:bg-geode-purple/90 dark:bg-geode-orange dark:text-geode-purple dark:hover:bg-geode-gold relative overflow-hidden group"
-              >
-                <span className="relative z-10">Explore Applications</span>
-                <Shield className="ml-2 h-5 w-5 relative z-10" />
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-geode-purple to-geode-purple/80 dark:from-geode-orange dark:to-geode-gold"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
+              Geode enables true decentralization with privacy-preserving blockchain technology and secure, self-custodial solutions.
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <Button size="lg" className="bg-geode-orange hover:bg-orange-600 text-white">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button size="lg" variant="outline" className="border-geode-purple hover:bg-geode-purple/20">
+                View Documentation 
               </Button>
             </motion.div>
             
-            <motion.div
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 1 }}
+              className="flex items-center gap-4 mt-4"
             >
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-geode-purple text-geode-purple hover:bg-geode-purple/10 dark:border-geode-orange dark:text-geode-orange dark:hover:bg-geode-orange/10 relative overflow-hidden group"
-              >
-                <span className="relative z-10">Learn More</span>
-                <Lock className="ml-2 h-5 w-5 relative z-10" />
-                <motion.div 
-                  className="absolute inset-0 bg-geode-purple/10 dark:bg-geode-orange/10"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </Button>
+              {[
+                { count: '10k+', label: 'Active Users' },
+                { count: '500+', label: 'dApps Built' },
+                { count: '$10M+', label: 'TVL' },
+              ].map((stat, i) => (
+                <div key={i} className="flex flex-col">
+                  <span className="text-geode-orange text-2xl font-bold">{stat.count}</span>
+                  <span className="text-gray-400 text-sm">{stat.label}</span>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
           
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center mt-8 space-x-2"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex justify-center"
           >
-            <motion.div 
-              className="h-2 w-2 rounded-full bg-green-500"
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [1, 0.7, 1]
-              }}
-              transition={{ 
-                repeat: Infinity, 
-                duration: 2,
-                ease: "easeInOut"
-              }}
-            />
-            <span className="text-sm text-gray-500 dark:text-gray-400">Network active with 128,534 nodes</span>
+            <DecentralizationVisual />
           </motion.div>
-        </motion.div>
-
-        {/* Visual Content */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex justify-center lg:justify-end"
-        >
-          <DecentralizationVisual />
-        </motion.div>
+        </div>
       </div>
+      
+      {/* Scroll indicator */}
+      <motion.div 
+        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          delay: 1,
+          duration: 0.8 
+        }}
+      >
+        <motion.div 
+          className="w-6 h-10 border-2 border-white rounded-full flex justify-center"
+          animate={{
+            boxShadow: ["0 0 0 rgba(255,255,255,0.1)", "0 0 10px rgba(255,255,255,0.5)", "0 0 0 rgba(255,255,255,0.1)"]
+          }}
+          transition={{ 
+            duration: 2, 
+            repeat: Infinity,
+            repeatType: "loop" 
+          }}
+        >
+          <motion.div 
+            className="w-1 h-2 bg-white rounded-full mt-2"
+            animate={{ 
+              y: [0, 12, 0]
+            }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity,
+              repeatType: "loop" 
+            }}
+          />
+        </motion.div>
+      </motion.div>
     </section>
   );
 };
