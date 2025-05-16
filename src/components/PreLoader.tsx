@@ -14,70 +14,103 @@ const PreLoader = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const hexVariants = {
+  const containerVariants = {
+    initial: { opacity: 1 },
+    exit: { 
+      opacity: 0,
+      transition: { duration: 0.5 } 
+    }
+  };
+
+  const logoVariants = {
+    initial: { scale: 0.8, opacity: 0 },
+    animate: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { duration: 0.8, ease: "easeOut" }
+    }
+  };
+
+  const progressVariants = {
+    initial: { width: "0%" },
+    animate: { 
+      width: "100%",
+      transition: { duration: 2.3, ease: "easeInOut" }
+    }
+  };
+
+  const circleVariants = {
     initial: { scale: 0, opacity: 0 },
     animate: (i: number) => ({
       scale: 1,
-      opacity: 1,
-      transition: {
-        delay: i * 0.2,
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }),
-    exit: { 
-      scale: 1.5, 
-      opacity: 0,
+      opacity: [0, 0.8, 0],
       transition: { 
-        duration: 0.8,
-        ease: "easeInOut"
+        delay: i * 0.2,
+        duration: 1.5,
+        repeat: Infinity,
+        repeatType: "loop" 
       }
-    }
+    })
   };
 
   if (!loading) return null;
 
   return (
     <motion.div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-geode-orange"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      animate={loading ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      className="fixed inset-0 flex flex-col items-center justify-center z-50 bg-gradient-to-br from-geode-orange/90 to-geode-purple/90"
+      variants={containerVariants}
+      initial="initial"
+      exit="exit"
     >
-      <div className="relative w-60 h-60">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <motion.div
-            key={i}
-            className={cn(
-              "absolute hexagon",
-              i === 0 ? "w-24 h-24 bg-geode-purple" : 
-              i === 1 ? "w-20 h-20 bg-geode-purple/80" : 
-              i === 2 ? "w-16 h-16 bg-geode-purple/60" : 
-              i === 3 ? "w-12 h-12 bg-geode-purple/40" : 
-              "w-8 h-8 bg-geode-purple/20"
-            )}
-            style={{ 
-              top: "50%", 
-              left: "50%", 
-              transform: "translate(-50%, -50%)" 
-            }}
-            variants={hexVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            custom={i}
-          />
-        ))}
-        <motion.div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-lg"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-        >
+      <motion.div
+        className="relative mb-10"
+        variants={logoVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="relative text-white text-4xl font-bold tracking-widest z-10">
           GEODE
-        </motion.div>
+        </div>
+        
+        {/* Animated circles */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <motion.div
+              key={i}
+              className={cn(
+                "absolute rounded-full border-2 border-white/20",
+                i === 0 ? "w-24 h-24" : 
+                i === 1 ? "w-32 h-32" : 
+                i === 2 ? "w-40 h-40" : 
+                i === 3 ? "w-48 h-48" : 
+                "w-56 h-56"
+              )}
+              custom={i}
+              variants={circleVariants}
+              initial="initial"
+              animate="animate"
+            />
+          ))}
+        </div>
+      </motion.div>
+      
+      <div className="w-64 h-1 bg-white/20 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-white rounded-full"
+          variants={progressVariants}
+          initial="initial"
+          animate="animate"
+        />
       </div>
+      
+      <motion.div 
+        className="mt-4 text-white/80 text-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        Initializing decentralized network
+      </motion.div>
     </motion.div>
   );
 };

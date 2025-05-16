@@ -21,6 +21,20 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Page section entrance animations
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({ 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        delay: i * 0.2,
+        duration: 0.6,
+        ease: "easeOut" 
+      } 
+    })
+  };
+
   return (
     <div className="min-h-screen">
       <AnimatePresence>
@@ -35,11 +49,54 @@ const Index = () => {
         >
           <Header />
           <main>
-            <HeroSection />
-            <ApplicationsSection />
-            <DaoSection />
-            <ActivitiesSection />
-            <PrivacySection />
+            <motion.div
+              custom={0}
+              variants={sectionVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <HeroSection />
+            </motion.div>
+            
+            <motion.div
+              custom={1}
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <ApplicationsSection />
+            </motion.div>
+            
+            <motion.div
+              custom={2}
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <DaoSection />
+            </motion.div>
+            
+            <motion.div
+              custom={3}
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <ActivitiesSection />
+            </motion.div>
+            
+            <motion.div
+              custom={4}
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <PrivacySection />
+            </motion.div>
           </main>
           <Footer />
         </motion.div>
