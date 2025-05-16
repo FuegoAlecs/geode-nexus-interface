@@ -1,118 +1,163 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Float } from '@react-three/drei';
 import { motion } from 'framer-motion';
 
-const DecentralizationVisual = () => {
-  // Create nodes for the network visualization
-  const centerNode = { x: 150, y: 150 };
-  const nodes = [
-    { x: 150, y: 50, delay: 0.1 },
-    { x: 250, y: 150, delay: 0.2 },
-    { x: 150, y: 250, delay: 0.3 },
-    { x: 50, y: 150, delay: 0.4 },
-    { x: 80, y: 80, delay: 0.5 },
-    { x: 220, y: 80, delay: 0.6 },
-    { x: 220, y: 220, delay: 0.7 },
-    { x: 80, y: 220, delay: 0.8 },
-  ];
-
+const Node = ({ position, color, size, pulse = false, isCenter = false }) => {
+  const nodeRef = useRef();
+  
+  useFrame(({ clock }) => {
+    if (nodeRef.current && pulse) {
+      const time = clock.getElapsedTime();
+      nodeRef.current.scale.x = nodeRef.current.scale.y = nodeRef.current.scale.z = 
+        size * (1 + Math.sin(time * 2) * 0.1);
+    }
+  });
+  
   return (
-    <div className="relative w-[300px] h-[300px]">
-      {/* Background hexagon */}
-      <motion.div 
-        className="absolute top-1/2 left-1/2 hexagon w-[250px] h-[250px] bg-geode-orange/20 dark:bg-geode-gold/10"
-        initial={{ opacity: 0, scale: 0.8, x: '-50%', y: '-50%' }}
-        animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
-        transition={{ duration: 1 }}
+    <mesh ref={nodeRef} position={position}>
+      {isCenter ? (
+        <cylinderGeometry args={[size, size, size * 0.3, 6, 1]} />
+      ) : (
+        <sphereGeometry args={[size, 16, 16]} />
+      )}
+      <meshStandardMaterial 
+        color={color}
+        roughness={0.3}
+        metalness={0.7}
+        emissive={color}
+        emissiveIntensity={0.2}
       />
+    </mesh>
+  );
+};
 
-      {/* Central node */}
-      <motion.div 
-        className="absolute hexagon w-16 h-16 bg-geode-purple dark:bg-geode-orange"
-        style={{ 
-          top: centerNode.y - 32, 
-          left: centerNode.x - 32,
-        }}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      />
+const Connection = ({ start, end, color }) => {
+  return (
+    <line>
+      <bufferGeometry attach="geometry">
+        <float32BufferAttribute 
+          attach="attributes-position" 
+          count={2}
+          array={[start.x, start.y, start.z, end.x, end.y, end.z]} 
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial attach="material" color={color} linewidth={1} />
+    </line>
+  );
+};
 
-      {/* Connecting nodes */}
+const NetworkGraph = () => {
+  const graphRef = useRef();
+  
+  // Center node and peripheral nodes
+  const centerPosition = [0, 0, 0];
+  const nodes = [
+    { position: [2, 0, 0], delay: 0.1 },
+    { position: [1.5, 1.5, 0], delay: 0.2 },
+    { position: [0, 2, 0], delay: 0.3 },
+    { position: [-1.5, 1.5, 0], delay: 0.4 },
+    { position: [-2, 0, 0], delay: 0.5 },
+    { position: [-1.5, -1.5, 0], delay: 0.6 },
+    { position: [0, -2, 0], delay: 0.7 },
+    { position: [1.5, -1.5, 0], delay: 0.8 },
+  ];
+  
+  useFrame(({ clock }) => {
+    if (graphRef.current) {
+      graphRef.current.rotation.y = clock.getElapsedTime() * 0.1;
+    }
+  });
+  
+  return (
+    <group ref={graphRef}>
+      {/* Center node */}
+      <Node position={centerPosition} color="#F5A623" size={0.5} isCenter={true} pulse={true} />
+      
+      {/* Peripheral nodes */}
       {nodes.map((node, index) => (
-        <React.Fragment key={index}>
-          {/* Line connecting to center */}
-          <motion.line
-            x1={centerNode.x}
-            y1={centerNode.y}
-            x2={node.x}
-            y2={node.y}
-            stroke="#4A2A6F"
-            strokeWidth="2"
-            strokeDasharray="4"
-            initial={{ opacity: 0, pathLength: 0 }}
-            animate={{ opacity: 0.7, pathLength: 1 }}
-            transition={{ duration: 1, delay: node.delay }}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-            }}
+        <Float 
+          key={index} 
+          speed={1} 
+          rotationIntensity={0.5} 
+          floatIntensity={0.5}
+        >
+          <Node 
+            position={node.position} 
+            color="#4A2A6F" 
+            size={0.25} 
+            pulse={index % 2 === 0}
           />
-
-          {/* Node */}
-          <motion.div 
-            className="absolute rounded-full w-6 h-6 bg-geode-gold dark:bg-geode-purple"
-            style={{ 
-              top: node.y - 12, 
-              left: node.x - 12,
-            }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: node.delay }}
-          />
-          
-          {/* Pulse effect */}
-          <motion.div
-            className="absolute rounded-full bg-geode-gold/30 dark:bg-geode-purple/30"
-            style={{ 
-              top: node.y - 12, 
-              left: node.x - 12,
-              width: '24px',
-              height: '24px',
-            }}
-            animate={{
-              opacity: [0.7, 0],
-              scale: [1, 2]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: node.delay + 1,
-            }}
-          />
+        </Float>
+      ))}
+      
+      {/* Connections */}
+      {nodes.map((node, index) => (
+        <Connection 
+          key={index}
+          start={{ x: centerPosition[0], y: centerPosition[1], z: centerPosition[2] }}
+          end={{ x: node.position[0], y: node.position[1], z: node.position[2] }}
+          color="#4A2A6F"
+        />
+      ))}
+      
+      {/* Connect peripheral nodes to each other */}
+      {nodes.map((node, i) => (
+        <React.Fragment key={`connections-${i}`}>
+          {i < nodes.length - 1 && (
+            <Connection 
+              start={{ x: node.position[0], y: node.position[1], z: node.position[2] }}
+              end={{ 
+                x: nodes[i + 1].position[0], 
+                y: nodes[i + 1].position[1], 
+                z: nodes[i + 1].position[2] 
+              }}
+              color="#4A2A6F"
+            />
+          )}
         </React.Fragment>
       ))}
       
-      {/* Animated central pulse */}
-      <motion.div
-        className="absolute rounded-full bg-geode-purple/30 dark:bg-geode-orange/30"
-        style={{ 
-          top: centerNode.y - 32, 
-          left: centerNode.x - 32,
-          width: '64px',
-          height: '64px',
+      {/* Connect last node to first to complete the circle */}
+      <Connection 
+        start={{ 
+          x: nodes[nodes.length - 1].position[0], 
+          y: nodes[nodes.length - 1].position[1], 
+          z: nodes[nodes.length - 1].position[2] 
         }}
-        animate={{
-          opacity: [0.7, 0],
-          scale: [1, 1.5]
+        end={{ 
+          x: nodes[0].position[0], 
+          y: nodes[0].position[1], 
+          z: nodes[0].position[2] 
         }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-        }}
+        color="#4A2A6F"
       />
-    </div>
+    </group>
+  );
+};
+
+const DecentralizationVisual = () => {
+  return (
+    <motion.div 
+      className="relative w-[400px] h-[400px]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
+      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+        <ambientLight intensity={0.5} />
+        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+        <NetworkGraph />
+        <OrbitControls 
+          enableZoom={false} 
+          enablePan={false}
+          autoRotate={true}
+          autoRotateSpeed={0.5}
+        />
+      </Canvas>
+    </motion.div>
   );
 };
 
