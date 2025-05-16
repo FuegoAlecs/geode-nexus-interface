@@ -5,30 +5,30 @@ import { OrbitControls, Float, Text3D, Center } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
-interface GeodeHexagonProps {
+interface PulseSphereProps {
   position: [number, number, number];
   scale: number;
   rotationSpeed: number;
   color: string;
 }
 
-const GeodeHexagon = ({ position, scale, rotationSpeed, color }: GeodeHexagonProps) => {
-  const hexRef = useRef<THREE.Mesh>(null);
+const PulseSphere = ({ position, scale, rotationSpeed, color }: PulseSphereProps) => {
+  const sphereRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
-    if (hexRef.current) {
-      hexRef.current.rotation.y += rotationSpeed;
-      hexRef.current.rotation.z += rotationSpeed * 0.5;
+    if (sphereRef.current) {
+      sphereRef.current.rotation.y += rotationSpeed;
+      sphereRef.current.rotation.z += rotationSpeed * 0.5;
       
       // Pulse effect with sine wave
       const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.05 + 1;
-      hexRef.current.scale.set(scale * pulse, scale * pulse, scale * pulse);
+      sphereRef.current.scale.set(scale * pulse, scale * pulse, scale * pulse);
     }
   });
   
   return (
-    <mesh ref={hexRef} position={position}>
-      <cylinderGeometry args={[1, 1, 0.2, 6, 1]} />
+    <mesh ref={sphereRef} position={position}>
+      <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial 
         color={color} 
         roughness={0.3}
@@ -37,6 +37,36 @@ const GeodeHexagon = ({ position, scale, rotationSpeed, color }: GeodeHexagonPro
         emissiveIntensity={0.2}
       />
     </mesh>
+  );
+};
+
+const FloatingRings = () => {
+  const ringRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (ringRef.current) {
+      ringRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
+      ringRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.2;
+    }
+  });
+  
+  return (
+    <group ref={ringRef}>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.5 + i * 0.5, 0.05, 16, 100]} />
+          <meshStandardMaterial 
+            color={i === 1 ? "#F5A623" : "#4A2A6F"} 
+            roughness={0.3}
+            metalness={0.8}
+            emissive={i === 1 ? "#F5A623" : "#4A2A6F"}
+            emissiveIntensity={0.2}
+            transparent={true}
+            opacity={0.8}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 };
 
@@ -90,11 +120,12 @@ const Scene = () => {
   
   return (
     <group ref={groupRef}>
-      <GeodeHexagon position={[0, 0, 0]} scale={1.2} rotationSpeed={0.01} color="#F5A623" />
-      <GeodeHexagon position={[2, 0, 0]} scale={0.8} rotationSpeed={0.015} color="#4A2A6F" />
-      <GeodeHexagon position={[-2, 0, 0]} scale={0.8} rotationSpeed={0.02} color="#4A2A6F" />
-      <GeodeHexagon position={[0, 1.5, 0]} scale={0.8} rotationSpeed={0.018} color="#4A2A6F" />
-      <GeodeHexagon position={[0, -1.5, 0]} scale={0.8} rotationSpeed={0.012} color="#4A2A6F" />
+      <FloatingRings />
+      <PulseSphere position={[0, 0, 0]} scale={1.2} rotationSpeed={0.01} color="#F5A623" />
+      <PulseSphere position={[2, 0, 0]} scale={0.6} rotationSpeed={0.015} color="#4A2A6F" />
+      <PulseSphere position={[-2, 0, 0]} scale={0.6} rotationSpeed={0.02} color="#4A2A6F" />
+      <PulseSphere position={[0, 1.5, 0]} scale={0.6} rotationSpeed={0.018} color="#4A2A6F" />
+      <PulseSphere position={[0, -1.5, 0]} scale={0.6} rotationSpeed={0.012} color="#4A2A6F" />
       <GeodeText />
     </group>
   );
@@ -124,13 +155,76 @@ const PreLoader3D = () => {
         </Canvas>
       </div>
       
-      <div className="absolute bottom-10 left-0 right-0 flex justify-center">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-geode-orange animate-pulse"></div>
-          <div className="w-2 h-2 rounded-full bg-geode-orange animate-pulse delay-100"></div>
-          <div className="w-2 h-2 rounded-full bg-geode-orange animate-pulse delay-200"></div>
-        </div>
-      </div>
+      <motion.div 
+        className="absolute bottom-10 left-0 right-0 flex justify-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+      >
+        <motion.div 
+          className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full"
+          animate={{ 
+            boxShadow: ["0 0 0 rgba(245, 166, 35, 0)", "0 0 20px rgba(245, 166, 35, 0.7)", "0 0 0 rgba(245, 166, 35, 0)"]
+          }}
+          transition={{ 
+            duration: 2, 
+            repeat: Infinity,
+            repeatType: "loop" 
+          }}
+        >
+          <motion.div 
+            className="w-2 h-2 rounded-full bg-geode-orange"
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.7, 1, 0.7] 
+            }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity,
+              repeatType: "loop" 
+            }}
+          />
+          <motion.div 
+            className="w-2 h-2 rounded-full bg-geode-orange"
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.7, 1, 0.7] 
+            }}
+            transition={{ 
+              duration: 1.5, 
+              delay: 0.5,
+              repeat: Infinity,
+              repeatType: "loop" 
+            }}
+          />
+          <motion.div 
+            className="w-2 h-2 rounded-full bg-geode-orange"
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.7, 1, 0.7] 
+            }}
+            transition={{ 
+              duration: 1.5, 
+              delay: 1,
+              repeat: Infinity,
+              repeatType: "loop" 
+            }}
+          />
+          <motion.span 
+            className="text-geode-orange text-sm ml-2"
+            animate={{ 
+              opacity: [0.7, 1, 0.7] 
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "loop"
+            }}
+          >
+            Initializing blockchain...
+          </motion.span>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 };

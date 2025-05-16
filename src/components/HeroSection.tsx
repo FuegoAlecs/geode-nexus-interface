@@ -32,8 +32,8 @@ const HeroSection = () => {
     tap: { scale: 0.98 }
   };
   
-  // Fixed hexagon variants to use a proper Framer Motion variant type
-  const hexagonVariants = {
+  // Fixed the error by using correct Framer Motion types
+  const floatingElementVariants = {
     initial: { 
       opacity: 0.2,
       scale: 1,
@@ -46,7 +46,7 @@ const HeroSection = () => {
       transition: { 
         duration: 20,
         repeat: Infinity,
-        repeatType: "reverse" as const,
+        repeatType: "reverse",
         ease: "easeInOut"
       }
     }
@@ -54,14 +54,14 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Background hexagons */}
+      {/* Dynamic background elements */}
       <div className="absolute inset-0 -z-10">
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute hexagon bg-gradient-to-br from-geode-gold/10 to-geode-purple/10 dark:from-geode-purple/10 dark:to-geode-orange/5"
+            className="absolute backdrop-blur-xl bg-white/5 border border-white/10 rounded-full"
             custom={i}
-            variants={hexagonVariants}
+            variants={floatingElementVariants}
             initial="initial"
             animate="animate"
             style={{
@@ -71,8 +71,8 @@ const HeroSection = () => {
               x: Math.random() * window.innerWidth,
               y: Math.random() * window.innerHeight,
               transition: {
-                delay: i * 0.2,
-                duration: Math.random() * 20 + 15,
+                duration: Math.random() * 20 + 15
+                // Removed delay property to fix error
               }
             }}
           />
