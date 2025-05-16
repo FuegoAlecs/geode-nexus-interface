@@ -1,137 +1,10 @@
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Float, Text3D, Center } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import * as THREE from 'three';
-
-// Define proper types for component props
-interface PulseSphereProps {
-  position: [number, number, number];
-  scale: number;
-  rotationSpeed: number;
-  color: string;
-}
-
-// PulseSphere component that runs inside Canvas
-const PulseSphere: React.FC<PulseSphereProps> = ({ position, scale, rotationSpeed, color }) => {
-  const sphereRef = useRef<THREE.Mesh>(null);
-  
-  const animate = (self: THREE.Mesh) => {
-    // Update rotation
-    self.rotation.y += rotationSpeed;
-    self.rotation.z += rotationSpeed * 0.5;
-    
-    // Pulse effect with sine wave
-    const time = Date.now() * 0.001; // Convert to seconds
-    const pulse = Math.sin(time * 2) * 0.05 + 1;
-    self.scale.set(scale * pulse, scale * pulse, scale * pulse);
-  };
-  
-  return (
-    <mesh ref={sphereRef} position={position} onUpdate={animate}>
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshStandardMaterial 
-        color={color} 
-        roughness={0.3}
-        metalness={0.8}
-        emissive={color}
-        emissiveIntensity={0.2}
-      />
-    </mesh>
-  );
-};
-
-// FloatingRings component that runs inside Canvas
-const FloatingRings: React.FC = () => {
-  const ringRef = useRef<THREE.Group>(null);
-  
-  const animate = (self: THREE.Group) => {
-    const time = Date.now() * 0.001; // Convert to seconds
-    self.rotation.x = Math.sin(time * 0.3) * 0.1;
-    self.rotation.y = Math.sin(time * 0.2) * 0.2;
-  };
-  
-  return (
-    <group ref={ringRef} onUpdate={animate}>
-      {[0, 1, 2].map((i) => (
-        <mesh key={i} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.5 + i * 0.5, 0.05, 16, 100]} />
-          <meshStandardMaterial 
-            color={i === 1 ? "#F5A623" : "#4A2A6F"} 
-            roughness={0.3}
-            metalness={0.8}
-            emissive={i === 1 ? "#F5A623" : "#4A2A6F"}
-            emissiveIntensity={0.2}
-            transparent={true}
-            opacity={0.8}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-};
-
-// GeodeText component that runs inside Canvas
-const GeodeText: React.FC = () => {
-  const textRef = useRef<THREE.Group>(null);
-  
-  const animate = (self: THREE.Group) => {
-    const time = Date.now() * 0.001; // Convert to seconds
-    // Gentle floating animation
-    self.position.y = Math.sin(time) * 0.1;
-  };
-  
-  return (
-    <group ref={textRef} onUpdate={animate}>
-      <Text3D
-        font="/fonts/Inter_Bold.json"
-        size={0.7}
-        height={0.2}
-        curveSegments={12}
-        bevelEnabled
-        bevelThickness={0.02}
-        bevelSize={0.02}
-        bevelOffset={0}
-        bevelSegments={5}
-      >
-        GEODE
-        <meshStandardMaterial 
-          color="#F5A623" 
-          roughness={0.1}
-          metalness={0.8}
-          emissive="#F5A623"
-          emissiveIntensity={0.4}
-        />
-      </Text3D>
-    </group>
-  );
-};
-
-// Scene component that runs inside Canvas
-const Scene: React.FC = () => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  const animate = (self: THREE.Group) => {
-    self.rotation.y = Date.now() * 0.0002;
-  };
-  
-  return (
-    <group ref={groupRef} onUpdate={animate}>
-      <FloatingRings />
-      <PulseSphere position={[0, 0, 0]} scale={1.2} rotationSpeed={0.01} color="#F5A623" />
-      <PulseSphere position={[2, 0, 0]} scale={0.6} rotationSpeed={0.015} color="#4A2A6F" />
-      <PulseSphere position={[-2, 0, 0]} scale={0.6} rotationSpeed={0.02} color="#4A2A6F" />
-      <PulseSphere position={[0, 1.5, 0]} scale={0.6} rotationSpeed={0.018} color="#4A2A6F" />
-      <PulseSphere position={[0, -1.5, 0]} scale={0.6} rotationSpeed={0.012} color="#4A2A6F" />
-      <Center>
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-          <GeodeText />
-        </Float>
-      </Center>
-    </group>
-  );
-};
+import PreloaderScene from './3d/PreloaderScene';
+import InitializingIndicator from './3d/InitializingIndicator';
 
 const PreLoader3D: React.FC = () => {
   return (
@@ -147,7 +20,7 @@ const PreLoader3D: React.FC = () => {
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
           <directionalLight position={[-5, 5, 5]} intensity={1} />
-          <Scene />
+          <PreloaderScene />
           <OrbitControls 
             enableZoom={false} 
             enablePan={false}
@@ -157,52 +30,7 @@ const PreLoader3D: React.FC = () => {
         </Canvas>
       </div>
       
-      <motion.div 
-        className="absolute bottom-10 left-0 right-0 flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.8 }}
-      >
-        <motion.div 
-          className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full"
-          animate={{ 
-            boxShadow: ["0 0 0 rgba(245, 166, 35, 0)", "0 0 20px rgba(245, 166, 35, 0.7)", "0 0 0 rgba(245, 166, 35, 0)"]
-          }}
-          transition={{ 
-            duration: 2, 
-            repeat: Infinity,
-            repeatType: "loop" 
-          }}
-        >
-          {[0, 1, 2].map((i) => (
-            <motion.div 
-              key={i}
-              className="w-2 h-2 rounded-full bg-geode-orange"
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [0.7, 1, 0.7] 
-              }}
-              transition={{ 
-                duration: 1.5, 
-                delay: i * 0.5,
-                repeat: Infinity,
-                repeatType: "loop" 
-              }}
-            />
-          ))}
-          <motion.span 
-            className="text-geode-orange text-sm ml-2"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "loop"
-            }}
-          >
-            Initializing blockchain...
-          </motion.span>
-        </motion.div>
-      </motion.div>
+      <InitializingIndicator />
     </motion.div>
   );
 };
