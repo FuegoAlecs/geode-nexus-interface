@@ -80,7 +80,7 @@ const HeroSection = () => {
     
     const animate = () => {
       // Create semi-transparent background for trails
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       particles.forEach(particle => {
