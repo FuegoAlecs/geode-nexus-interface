@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
@@ -13,19 +13,20 @@ interface NodeProps {
   isCenter?: boolean;
 }
 
+// Node component that runs inside Canvas
 const Node = ({ position, color, size, pulse = false, isCenter = false }: NodeProps) => {
   const nodeRef = useRef<THREE.Mesh>(null);
   
-  useFrame(({ clock }) => {
+  const animate = ({ clock }) => {
     if (nodeRef.current && pulse) {
       const time = clock.getElapsedTime();
       const scale = size * (1 + Math.sin(time * 2) * 0.1);
       nodeRef.current.scale.set(scale, scale, scale);
     }
-  });
+  };
   
   return (
-    <mesh ref={nodeRef} position={position}>
+    <mesh ref={nodeRef} position={position} onUpdate={animate}>
       {isCenter ? (
         <cylinderGeometry args={[size, size, size * 0.3, 6, 1]} />
       ) : (
@@ -51,7 +52,7 @@ interface ConnectionProps {
 const Connection = ({ start, end, color }: ConnectionProps) => {
   return (
     <line>
-      <bufferGeometry attach="geometry">
+      <bufferGeometry>
         <float32BufferAttribute 
           attach="attributes-position" 
           count={2}
@@ -69,6 +70,7 @@ interface NodeData {
   delay: number;
 }
 
+// NetworkGraph component that runs inside Canvas
 const NetworkGraph = () => {
   const graphRef = useRef<THREE.Group>(null);
   
@@ -85,14 +87,14 @@ const NetworkGraph = () => {
     { position: [1.5, -1.5, 0], delay: 0.8 },
   ];
   
-  useFrame(({ clock }) => {
+  const animate = ({ clock }) => {
     if (graphRef.current) {
       graphRef.current.rotation.y = clock.getElapsedTime() * 0.1;
     }
-  });
+  };
   
   return (
-    <group ref={graphRef}>
+    <group ref={graphRef} onUpdate={animate}>
       {/* Center node */}
       <Node 
         position={centerPosition} 

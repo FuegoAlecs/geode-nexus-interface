@@ -1,33 +1,28 @@
 
 import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, Text3D, Center } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
-interface PulseSphereProps {
-  position: [number, number, number];
-  scale: number;
-  rotationSpeed: number;
-  color: string;
-}
-
-const PulseSphere = ({ position, scale, rotationSpeed, color }: PulseSphereProps) => {
-  const sphereRef = useRef<THREE.Mesh>(null);
+// PulseSphere component that runs inside Canvas
+const PulseSphere = ({ position, scale, rotationSpeed, color }) => {
+  const sphereRef = useRef(null);
   
-  useFrame((state) => {
+  // useFrame will only run inside the Canvas
+  const animate = (state) => {
     if (sphereRef.current) {
       sphereRef.current.rotation.y += rotationSpeed;
       sphereRef.current.rotation.z += rotationSpeed * 0.5;
       
       // Pulse effect with sine wave
-      const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.05 + 1;
+      const pulse = Math.sin(state.clock.getElapsedTime() * 2) * 0.05 + 1;
       sphereRef.current.scale.set(scale * pulse, scale * pulse, scale * pulse);
     }
-  });
+  };
   
   return (
-    <mesh ref={sphereRef} position={position}>
+    <mesh ref={sphereRef} position={position} onUpdate={animate}>
       <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial 
         color={color} 
@@ -40,18 +35,20 @@ const PulseSphere = ({ position, scale, rotationSpeed, color }: PulseSphereProps
   );
 };
 
+// FloatingRings component that runs inside Canvas
 const FloatingRings = () => {
-  const ringRef = useRef<THREE.Group>(null);
+  const ringRef = useRef(null);
   
-  useFrame((state) => {
+  const animate = (state) => {
     if (ringRef.current) {
-      ringRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
-      ringRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.2;
+      const time = state.clock.getElapsedTime();
+      ringRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
+      ringRef.current.rotation.y = Math.sin(time * 0.2) * 0.2;
     }
-  });
+  };
   
   return (
-    <group ref={ringRef}>
+    <group ref={ringRef} onUpdate={animate}>
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[1.5 + i * 0.5, 0.05, 16, 100]} />
@@ -70,21 +67,23 @@ const FloatingRings = () => {
   );
 };
 
+// GeodeText component that runs inside Canvas
 const GeodeText = () => {
-  const textRef = useRef<THREE.Mesh>(null);
+  const textRef = useRef(null);
   
-  useFrame(({ clock }) => {
+  const animate = ({ clock }) => {
     if (textRef.current) {
       // Gentle floating animation
-      textRef.current.position.y = Math.sin(clock.elapsedTime) * 0.1;
+      textRef.current.position.y = Math.sin(clock.getElapsedTime()) * 0.1;
     }
-  });
+  };
   
   return (
     <Center>
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
         <Text3D
           ref={textRef}
+          onUpdate={animate}
           font="/fonts/Inter_Bold.json"
           size={0.7}
           height={0.2}
@@ -109,17 +108,18 @@ const GeodeText = () => {
   );
 };
 
+// Scene component that runs inside Canvas
 const Scene = () => {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef(null);
   
-  useFrame(({ clock }) => {
+  const animate = ({ clock }) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = clock.elapsedTime * 0.2;
+      groupRef.current.rotation.y = clock.getElapsedTime() * 0.2;
     }
-  });
+  };
   
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} onUpdate={animate}>
       <FloatingRings />
       <PulseSphere position={[0, 0, 0]} scale={1.2} rotationSpeed={0.01} color="#F5A623" />
       <PulseSphere position={[2, 0, 0]} scale={0.6} rotationSpeed={0.015} color="#4A2A6F" />
@@ -172,44 +172,22 @@ const PreLoader3D = () => {
             repeatType: "loop" 
           }}
         >
-          <motion.div 
-            className="w-2 h-2 rounded-full bg-geode-orange"
-            animate={{ 
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 1, 0.7] 
-            }}
-            transition={{ 
-              duration: 1.5, 
-              repeat: Infinity,
-              repeatType: "loop" 
-            }}
-          />
-          <motion.div 
-            className="w-2 h-2 rounded-full bg-geode-orange"
-            animate={{ 
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 1, 0.7] 
-            }}
-            transition={{ 
-              duration: 1.5, 
-              delay: 0.5,
-              repeat: Infinity,
-              repeatType: "loop" 
-            }}
-          />
-          <motion.div 
-            className="w-2 h-2 rounded-full bg-geode-orange"
-            animate={{ 
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 1, 0.7] 
-            }}
-            transition={{ 
-              duration: 1.5, 
-              delay: 1,
-              repeat: Infinity,
-              repeatType: "loop" 
-            }}
-          />
+          {[0, 1, 2].map((i) => (
+            <motion.div 
+              key={i}
+              className="w-2 h-2 rounded-full bg-geode-orange"
+              animate={{ 
+                scale: [1, 1.5, 1],
+                opacity: [0.7, 1, 0.7] 
+              }}
+              transition={{ 
+                duration: 1.5, 
+                delay: i * 0.5,
+                repeat: Infinity,
+                repeatType: "loop" 
+              }}
+            />
+          ))}
           <motion.span 
             className="text-geode-orange text-sm ml-2"
             animate={{ 

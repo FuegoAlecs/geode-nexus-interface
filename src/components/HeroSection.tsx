@@ -32,7 +32,7 @@ const HeroSection = () => {
     tap: { scale: 0.98 }
   };
   
-  // Fixed the error by using correct Framer Motion types
+  // Fixed the error by correcting the Framer Motion types
   const floatingElementVariants = {
     initial: { 
       opacity: 0.2,
@@ -46,7 +46,7 @@ const HeroSection = () => {
       transition: { 
         duration: 20,
         repeat: Infinity,
-        repeatType: "reverse",
+        repeatType: "loop",
         ease: "easeInOut"
       }
     }
@@ -68,12 +68,8 @@ const HeroSection = () => {
               width: `${Math.random() * 100 + 50}px`,
               height: `${Math.random() * 100 + 50}px`,
               backdropFilter: "blur(2px)",
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-              transition: {
-                duration: Math.random() * 20 + 15
-                // Removed delay property to fix error
-              }
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
             }}
           />
         ))}
