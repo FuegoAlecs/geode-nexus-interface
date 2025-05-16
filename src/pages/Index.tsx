@@ -7,7 +7,7 @@ import DaoSection from '@/components/DaoSection';
 import ActivitiesSection from '@/components/ActivitiesSection';
 import PrivacySection from '@/components/PrivacySection';
 import Footer from '@/components/Footer';
-import PreLoader3D from '@/components/PreLoader3D';
+import PreLoader from '@/components/PreLoader';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Index = () => {
@@ -16,7 +16,7 @@ const Index = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3500); // Increased loading time to showcase the 3D animation
+    }, 2500);
     
     return () => clearTimeout(timer);
   }, []);
@@ -24,14 +24,14 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <AnimatePresence>
-        {loading && <PreLoader3D />}
+        {loading && <PreLoader />}
       </AnimatePresence>
 
       {!loading && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
         >
           <Header />
           <main>
