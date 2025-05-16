@@ -3,15 +3,24 @@ import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import { motion } from 'framer-motion';
+import * as THREE from 'three';
 
-const Node = ({ position, color, size, pulse = false, isCenter = false }) => {
-  const nodeRef = useRef();
+interface NodeProps {
+  position: [number, number, number];
+  color: string;
+  size: number;
+  pulse?: boolean;
+  isCenter?: boolean;
+}
+
+const Node = ({ position, color, size, pulse = false, isCenter = false }: NodeProps) => {
+  const nodeRef = useRef<THREE.Mesh>(null);
   
   useFrame(({ clock }) => {
     if (nodeRef.current && pulse) {
       const time = clock.getElapsedTime();
-      nodeRef.current.scale.x = nodeRef.current.scale.y = nodeRef.current.scale.z = 
-        size * (1 + Math.sin(time * 2) * 0.1);
+      const scale = size * (1 + Math.sin(time * 2) * 0.1);
+      nodeRef.current.scale.set(scale, scale, scale);
     }
   });
   
@@ -23,7 +32,7 @@ const Node = ({ position, color, size, pulse = false, isCenter = false }) => {
         <sphereGeometry args={[size, 16, 16]} />
       )}
       <meshStandardMaterial 
-        color={color}
+        color={color} 
         roughness={0.3}
         metalness={0.7}
         emissive={color}
@@ -33,14 +42,20 @@ const Node = ({ position, color, size, pulse = false, isCenter = false }) => {
   );
 };
 
-const Connection = ({ start, end, color }) => {
+interface ConnectionProps {
+  start: {x: number; y: number; z: number};
+  end: {x: number; y: number; z: number};
+  color: string;
+}
+
+const Connection = ({ start, end, color }: ConnectionProps) => {
   return (
     <line>
       <bufferGeometry attach="geometry">
         <float32BufferAttribute 
           attach="attributes-position" 
           count={2}
-          array={[start.x, start.y, start.z, end.x, end.y, end.z]} 
+          array={new Float32Array([start.x, start.y, start.z, end.x, end.y, end.z])} 
           itemSize={3}
         />
       </bufferGeometry>
@@ -49,12 +64,17 @@ const Connection = ({ start, end, color }) => {
   );
 };
 
+interface NodeData {
+  position: [number, number, number];
+  delay: number;
+}
+
 const NetworkGraph = () => {
-  const graphRef = useRef();
+  const graphRef = useRef<THREE.Group>(null);
   
   // Center node and peripheral nodes
-  const centerPosition = [0, 0, 0];
-  const nodes = [
+  const centerPosition: [number, number, number] = [0, 0, 0];
+  const nodes: NodeData[] = [
     { position: [2, 0, 0], delay: 0.1 },
     { position: [1.5, 1.5, 0], delay: 0.2 },
     { position: [0, 2, 0], delay: 0.3 },
@@ -74,7 +94,13 @@ const NetworkGraph = () => {
   return (
     <group ref={graphRef}>
       {/* Center node */}
-      <Node position={centerPosition} color="#F5A623" size={0.5} isCenter={true} pulse={true} />
+      <Node 
+        position={centerPosition} 
+        color="#F5A623" 
+        size={0.5} 
+        isCenter={true} 
+        pulse={true} 
+      />
       
       {/* Peripheral nodes */}
       {nodes.map((node, index) => (

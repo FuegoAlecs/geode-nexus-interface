@@ -32,26 +32,24 @@ const HeroSection = () => {
     tap: { scale: 0.98 }
   };
   
+  // Fixed hexagon variants to use a proper Framer Motion variant type
   const hexagonVariants = {
     initial: { 
       opacity: 0.2,
       scale: 1,
       rotate: 0
     },
-    animate: (i: number) => ({ 
-      opacity: Math.random() * 0.2 + 0.1,
-      scale: Math.random() * 0.3 + 0.8,
-      rotate: Math.random() * 360,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
+    animate: { 
+      opacity: [0.1, 0.2, 0.3],
+      scale: [0.8, 1, 1.1],
+      rotate: 360,
       transition: { 
-        duration: Math.random() * 20 + 15,
+        duration: 20,
         repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
-        delay: i * 0.2
+        repeatType: "reverse" as const,
+        ease: "easeInOut"
       }
-    })
+    }
   };
 
   return (
@@ -69,7 +67,13 @@ const HeroSection = () => {
             style={{
               width: `${Math.random() * 100 + 50}px`,
               height: `${Math.random() * 100 + 50}px`,
-              backdropFilter: "blur(2px)"
+              backdropFilter: "blur(2px)",
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              transition: {
+                delay: i * 0.2,
+                duration: Math.random() * 20 + 15,
+              }
             }}
           />
         ))}

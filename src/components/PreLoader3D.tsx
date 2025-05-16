@@ -5,8 +5,15 @@ import { OrbitControls, Float, Text3D, Center } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
-const GeodeHexagon = ({ position, scale, rotationSpeed, color }) => {
-  const hexRef = useRef();
+interface GeodeHexagonProps {
+  position: [number, number, number];
+  scale: number;
+  rotationSpeed: number;
+  color: string;
+}
+
+const GeodeHexagon = ({ position, scale, rotationSpeed, color }: GeodeHexagonProps) => {
+  const hexRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (hexRef.current) {
@@ -34,7 +41,7 @@ const GeodeHexagon = ({ position, scale, rotationSpeed, color }) => {
 };
 
 const GeodeText = () => {
-  const textRef = useRef();
+  const textRef = useRef<THREE.Mesh>(null);
   
   useFrame(({ clock }) => {
     if (textRef.current) {
@@ -73,7 +80,7 @@ const GeodeText = () => {
 };
 
 const Scene = () => {
-  const groupRef = useRef();
+  const groupRef = useRef<THREE.Group>(null);
   
   useFrame(({ clock }) => {
     if (groupRef.current) {
