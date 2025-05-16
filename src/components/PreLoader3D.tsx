@@ -5,11 +5,19 @@ import { OrbitControls, Float, Text3D, Center } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
+// Define proper types for component props
+interface PulseSphereProps {
+  position: [number, number, number];
+  scale: number;
+  rotationSpeed: number;
+  color: string;
+}
+
 // PulseSphere component that runs inside Canvas
-const PulseSphere = ({ position, scale, rotationSpeed, color }) => {
-  const sphereRef = useRef(null);
+const PulseSphere: React.FC<PulseSphereProps> = ({ position, scale, rotationSpeed, color }) => {
+  const sphereRef = useRef<THREE.Mesh>(null);
   
-  const animate = (self) => {
+  const animate = (self: THREE.Mesh) => {
     // Update rotation
     self.rotation.y += rotationSpeed;
     self.rotation.z += rotationSpeed * 0.5;
@@ -35,10 +43,10 @@ const PulseSphere = ({ position, scale, rotationSpeed, color }) => {
 };
 
 // FloatingRings component that runs inside Canvas
-const FloatingRings = () => {
-  const ringRef = useRef(null);
+const FloatingRings: React.FC = () => {
+  const ringRef = useRef<THREE.Group>(null);
   
-  const animate = (self) => {
+  const animate = (self: THREE.Group) => {
     const time = Date.now() * 0.001; // Convert to seconds
     self.rotation.x = Math.sin(time * 0.3) * 0.1;
     self.rotation.y = Math.sin(time * 0.2) * 0.2;
@@ -64,51 +72,51 @@ const FloatingRings = () => {
   );
 };
 
-// GeodeText component that runs inside Canvas
-const GeodeText = () => {
-  const textRef = useRef(null);
+// GeodeText component that runs inside Canvas - Fixed to not use hooks directly
+const GeodeText: React.FC = () => {
+  const textRef = useRef<THREE.Group>(null);
   
-  const animate = (self) => {
+  const animate = (self: THREE.Group) => {
     const time = Date.now() * 0.001; // Convert to seconds
     // Gentle floating animation
     self.position.y = Math.sin(time) * 0.1;
   };
   
   return (
-    <Center>
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-        <Text3D
-          ref={textRef}
-          onUpdate={animate}
-          font="/fonts/Inter_Bold.json"
-          size={0.7}
-          height={0.2}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.02}
-          bevelSize={0.02}
-          bevelOffset={0}
-          bevelSegments={5}
-        >
-          GEODE
-          <meshStandardMaterial 
-            color="#F5A623" 
-            roughness={0.1}
-            metalness={0.8}
-            emissive="#F5A623"
-            emissiveIntensity={0.4}
-          />
-        </Text3D>
-      </Float>
-    </Center>
+    <group ref={textRef} onUpdate={animate}>
+      <Center>
+        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+          <Text3D
+            font="/fonts/Inter_Bold.json"
+            size={0.7}
+            height={0.2}
+            curveSegments={12}
+            bevelEnabled
+            bevelThickness={0.02}
+            bevelSize={0.02}
+            bevelOffset={0}
+            bevelSegments={5}
+          >
+            GEODE
+            <meshStandardMaterial 
+              color="#F5A623" 
+              roughness={0.1}
+              metalness={0.8}
+              emissive="#F5A623"
+              emissiveIntensity={0.4}
+            />
+          </Text3D>
+        </Float>
+      </Center>
+    </group>
   );
 };
 
 // Scene component that runs inside Canvas
-const Scene = () => {
-  const groupRef = useRef(null);
+const Scene: React.FC = () => {
+  const groupRef = useRef<THREE.Group>(null);
   
-  const animate = (self) => {
+  const animate = (self: THREE.Group) => {
     self.rotation.y = Date.now() * 0.0002;
   };
   
@@ -125,7 +133,7 @@ const Scene = () => {
   );
 };
 
-const PreLoader3D = () => {
+const PreLoader3D: React.FC = () => {
   return (
     <motion.div
       className="fixed inset-0 flex items-center justify-center z-50 bg-gradient-to-br from-geode-purple/90 to-black"

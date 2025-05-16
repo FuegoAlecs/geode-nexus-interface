@@ -14,7 +14,7 @@ interface NodeProps {
 }
 
 // Node component that runs inside Canvas
-const Node = ({ position, color, size, pulse = false, isCenter = false }: NodeProps) => {
+const Node: React.FC<NodeProps> = ({ position, color, size, pulse = false, isCenter = false }) => {
   const nodeRef = useRef<THREE.Mesh>(null);
   
   const onAnimate = (self: THREE.Mesh) => {
@@ -49,7 +49,7 @@ interface ConnectionProps {
   color: string;
 }
 
-const Connection = ({ start, end, color }: ConnectionProps) => {
+const Connection: React.FC<ConnectionProps> = ({ start, end, color }) => {
   return (
     <line>
       <bufferGeometry>
@@ -71,7 +71,7 @@ interface NodeData {
 }
 
 // NetworkGraph component that runs inside Canvas
-const NetworkGraph = () => {
+const NetworkGraph: React.FC = () => {
   const graphRef = useRef<THREE.Group>(null);
   
   // Center node and peripheral nodes
@@ -165,7 +165,7 @@ const NetworkGraph = () => {
   );
 };
 
-const DecentralizationVisual = () => {
+const DecentralizationVisual: React.FC = () => {
   return (
     <motion.div 
       className="relative w-[400px] h-[400px]"
